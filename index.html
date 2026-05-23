@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>115 网页加工车间</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background: #f0f2f5; padding-bottom: 110px; color: #1c1e21;}
+        .container { max-width: 800px; margin: 10px auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.05); }
+        h2 { display: flex; align-items: center; justify-content: space-between; margin-top: 0; margin-bottom: 25px; font-weight: 800; font-size: 22px;}
+        .top-tools { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;}
+        .nav-bar-container { display: flex; gap: 10px; }
+        .nav-bar { flex: 1; padding: 14px; background: #ffffff; border: 1px solid #e4e6eb; border-radius: 14px; font-weight: bold; cursor: pointer; color: #1877f2; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); position: relative;}
+        .nav-bar:hover { background: #f6f7f8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+        .log-btn { color: #10a37f; }
+        .badge { position: absolute; top: -5px; right: -5px; background: #f87171; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; display: none; box-shadow: 0 2px 5px rgba(248,113,113,0.5); border: 2px solid white;}
+        .search-box { display: flex; gap: 10px; }
+        .search-box input { flex-grow: 1; padding: 12px 18px; border: 1px solid #ced0d4; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s ease; background: #f0f2f5;}
+        .search-box input:focus { border-color: #1877f2; background: white; box-shadow: 0 0 0 3px rgba(24,119,242,0.1); }
+        .search-btn { padding: 12px 22px; border: none; border-radius: 12px; background: #1c1e21; color: white; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .search-btn:hover { background: #3a3b3c; }
+        .item { display: flex; align-items: center; padding: 14px 10px; border-bottom: 1px solid #f0f2f5; transition: 0.2s ease; }
+        .item:hover { background: #f7f8fa; border-radius: 10px; border-bottom-color: transparent;}
+        .icon { font-size: 26px; margin-right: 15px; }
+        .name { flex-grow: 1; font-size: 15px; font-weight: 500; word-break: break-all; }
+        
+        .btn { padding: 8px 14px; border: none; border-radius: 10px; background: #10a37f; color: white; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.2s ease; box-shadow: 0 2px 6px rgba(16, 163, 127, 0.2);}
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; box-shadow: none;}
+        .btn-clean { background: #eab308; margin-left: 8px; box-shadow: 0 2px 6px rgba(234, 179, 8, 0.2);}
+        
+        .btn-batch-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; display: none; }
+        .btn-batch { background: linear-gradient(135deg, #6ee7b7 0%, #3b82f6 100%); color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 14px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.1); border: none; cursor: pointer;}
+        .btn-batch-clean { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 14px; box-shadow: 0 4px 15px rgba(253, 160, 133, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.1); border: none; cursor: pointer;}
+        .btn-batch:disabled, .btn-batch-clean:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .log-box { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 550px; padding: 18px 20px; background: rgba(28, 30, 33, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: #fff; border-radius: 16px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; line-height: 1.6; font-size: 13px; display: none; box-shadow: 0 16px 40px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); max-height: 60vh; z-index: 9999; animation: slideUpPopup 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; flex-direction: column; }
+        @keyframes slideUpPopup { 0% { opacity: 0; bottom: 0px; } 100% { opacity: 1; bottom: 30px; } }
+        .log-header { overflow: hidden; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
+        .log-content { overflow-y: auto; flex-grow: 1;}
+        .log-filters { display: none; gap: 8px; margin-bottom: 15px; flex-shrink: 0;}
+        .filter-tab { padding: 4px 12px; background: rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
+        .filter-tab.active { background: #1877f2; color: white; font-weight: bold;}
+        .filter-tab.active-error { background: #f87171; color: white; font-weight: bold;}
+        .loader { border: 2px solid rgba(255,255,255,0.2); border-top: 2px solid #fff; border-radius: 50%; width: 12px; height: 12px; animation: spin 1s linear infinite; display: inline-block; margin-right: 6px; vertical-align: middle;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .close-btn { color: rgba(255,255,255,0.7); float: right; cursor: pointer; font-size: 13px; font-weight: bold; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 8px; transition: 0.2s;}
+        .close-btn:hover { background: rgba(255,255,255,0.2); color: white;}
+        .clear-btn { background: rgba(248,113,113,0.15); color: #f87171;}
+        .clear-btn:hover { background: rgba(248,113,113,0.3); color: #fca5a5;}
+        
+        .history-item { padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .history-item:last-child { border-bottom: none; }
+        .log-tree-line { padding-left: 18px; margin-top: 4px; position: relative; }
+        .log-tree-line::before { content: ''; position: absolute; left: 4px; top: -8px; bottom: 8px; width: 2px; background: rgba(255,255,255,0.2); }
+        .log-tree-line::after { content: ''; position: absolute; left: 4px; top: 10px; width: 10px; height: 2px; background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎬 115 网页车间 <span style="font-size: 12px; color: white; background: #1c1e21; padding: 4px 10px; border-radius: 12px; font-weight: bold;">v6.8 终极全自动版</span></h2>
+        
+        <div class="top-tools">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="全局极速搜索..." onkeypress="if(event.keyCode==13) doSearch()">
+                <button class="search-btn" onclick="doSearch()">🔍 搜索</button>
+            </div>
+            
+            <div class="nav-bar-container">
+                <div class="nav-bar" onclick="loadDirectory('0')">🏠 返回根目录</div>
+                <div class="nav-bar log-btn" onclick="showTaskCenter()">
+                    📋 运行日志 (<span id="logCount">0</span>)
+                    <div class="badge" id="failBadge">0 失败</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-batch-group" id="batchGroup">
+            <button class="btn-batch-clean" id="batchCleanBtn" onclick="batchCleanAll()">📦 一键批量【洗盘与松鼠收纳】本页所有文件夹</button>
+            <button class="btn-batch" id="batchBtn" onclick="batchProcessAll()">⚡ 一键批量【常规对齐改名】本页所有文件夹</button>
+        </div>
+
+        <div id="fileList">
+            <p style="text-align: center; color: #888; margin-top: 40px;">正在连线 115 服务器...</p>
+        </div>
+    </div>
+    
+    <div class="log-box" id="logBox" style="display: none;">
+        <div class="log-header">
+            <span style="font-size: 14px; color: white; font-weight: bold;" id="logTitle">系统监控</span>
+            <div>
+                <span class="close-btn clear-btn" style="margin-right: 8px;" onclick="clearAllLogs()">🗑️ 清空日志</span>
+                <span class="close-btn" onclick="hideLogBox()">✖ 收起</span>
+            </div>
+        </div>
+        <div class="log-filters" id="logFilters">
+            <div class="filter-tab active" id="tabAll" onclick="setLogFilter('all')">显示全部</div>
+            <div class="filter-tab" id="tabError" onclick="setLogFilter('error')">❌ 仅看失败 (<span id="failCountText">0</span>)</div>
+        </div>
+        <div class="log-content" id="logContent"></div>
+    </div>
+
+    <script>
+        window.taskHistory = []; 
+        window.taskStatusMap = {}; 
+        window.errorCount = 0;
+        window.currentFilter = 'all'; 
+        
+        window.currentFolders = [];
+        window.currentCid = '0'; 
+        window.hideToastTimeout = null; 
+
+        window.onload = () => loadDirectory('0');
+
+        function hideLogBox() { 
+            document.getElementById('logBox').style.display = 'none'; 
+            document.getElementById('logFilters').style.display = 'none';
+        }
+        
+        function setLogFilter(type) {
+            window.currentFilter = type;
+            document.getElementById('tabAll').className = type === 'all' ? 'filter-tab active' : 'filter-tab';
+            document.getElementById('tabError').className = type === 'error' ? 'filter-tab active-error' : 'filter-tab';
+            renderLogs();
+        }
+
+        function clearAllLogs() {
+            if(!confirm("确定要清空所有运行日志和状态吗？\\n清空后，列表中的状态也会被重置！")) return;
+            window.taskHistory = []; window.taskStatusMap = {}; window.errorCount = 0;
+            document.getElementById('logCount').innerText = '0';
+            document.getElementById('failBadge').style.display = 'none';
+            document.getElementById('failCountText').innerText = '0';
+            renderLogs(); hideLogBox(); 
+            if(window.currentFolders.length > 0 || document.getElementById('searchInput').value) {
+                if (!window.currentCid.startsWith('search_')) { loadDirectory(window.currentCid); } else { doSearch(); }
+            }
+        }
+
+        function renderLogs() {
+            let logContent = document.getElementById('logContent');
+            if(window.taskHistory.length === 0) {
+                logContent.innerHTML = '<div style="color: #888; text-align: center; padding: 20px 0;">暂无运行记录</div>';
+                return;
+            }
+            let filteredLogs = window.taskHistory;
+            if (window.currentFilter === 'error') {
+                filteredLogs = window.taskHistory.filter(item => item.isError);
+                if (filteredLogs.length === 0) {
+                    logContent.innerHTML = '<div style="color: #4ade80; text-align: center; padding: 20px 0;">🎉 太棒了，没有任何失败记录！</div>';
+                    return;
+                }
+            }
+            logContent.innerHTML = filteredLogs.map(item => item.html).join('');
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function showTaskCenter() {
+            clearTimeout(window.hideToastTimeout);
+            let logBox = document.getElementById('logBox');
+            document.getElementById('logTitle').innerText = '📋 历史运行日志';
+            document.getElementById('logFilters').style.display = 'flex'; 
+            logBox.style.animation = 'none'; logBox.offsetHeight; 
+            logBox.style.animation = 'slideUpPopup 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            logBox.style.display = 'flex';
+            renderLogs();
+        }
+        
+        function appendToHistory(safeName, msg, isSuccess, typeLabel="处理") {
+            let now = new Date();
+            let dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            let timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+            
+            let isError = !isSuccess;
+            let logColor = isSuccess ? '#4ade80' : (msg.includes('跳过') || msg.includes('无需处理') ? '#fbbf24' : '#f87171');
+            
+            let mainMsg = msg;
+            let missingStr = "";
+            if (msg.includes("失败漏缺:")) {
+                let parts = msg.split("失败漏缺:");
+                mainMsg = parts[0].trim();
+                missingStr = parts[1].trim();
+            }
+
+            let htmlContent = `
+            <div class="history-item">
+                <div style="color: #61afef; font-weight: bold; font-size: 13px;">[${dateStr} ${timeStr}] [${typeLabel}] 【${safeName}】</div>
+                <div class="log-tree-line" style="color: ${logColor};">状态反馈: ${mainMsg}</div>`;
+            
+            if (missingStr) { htmlContent += `<div class="log-tree-line" style="color: #f87171; font-weight: bold;">失败漏缺: ${missingStr}</div>`; }
+            htmlContent += `</div>`;
+            
+            window.taskHistory.push({ isError: isError, html: htmlContent });
+            document.getElementById('logCount').innerText = window.taskHistory.length;
+            
+            if(isError) {
+                window.errorCount++;
+                let badge = document.getElementById('failBadge');
+                badge.style.display = 'block'; badge.innerText = window.errorCount + ' 失败';
+                document.getElementById('failCountText').innerText = window.errorCount;
+            }
+            if(document.getElementById('logBox').style.display === 'flex' && document.getElementById('logTitle').innerText === '📋 历史运行日志') { renderLogs(); }
+        }
+
+        function renderList(data, isSearch = false) {
+            let html = '';
+            window.currentFolders = data.folders;
+            
+            let batchGroup = document.getElementById('batchGroup');
+            let batchBtn = document.getElementById('batchBtn');
+            let batchCleanBtn = document.getElementById('batchCleanBtn');
+            
+            if(data.folders.length > 0) {
+                batchGroup.style.display = 'flex';
+                batchBtn.innerHTML = `⚡ 一键批量【常规对齐改名】 (${data.folders.length} 个)`;
+                batchCleanBtn.innerHTML = `📦 一键批量【洗盘与松鼠收纳】 (${data.folders.length} 个)`;
+                batchBtn.disabled = false;
+                batchCleanBtn.disabled = false;
+                batchBtn.style.background = 'linear-gradient(135deg, #6ee7b7 0%, #3b82f6 100%)';
+                batchCleanBtn.style.background = 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)';
+            } else { 
+                batchGroup.style.display = 'none'; 
+            }
+
+            if(isSearch) { html += `<div style="padding: 12px; color: #0b8265; font-weight: bold; background: #e6f6f3; border-radius: 10px; margin-bottom: 15px;">🎯 搜索结果：</div>`; }
+            
+            data.folders.forEach((f, index) => {
+                let btnId = 'btn-' + index;
+                let cleanBtnId = 'clean-' + index;
+                let memory = window.taskStatusMap[f.cid];
+                let btnHtml = '';
+                if(memory && memory.status === 'success') {
+                    btnHtml = `<button class="btn" style="background: ${memory.color};" disabled>${memory.text}</button>`;
+                } else {
+                    btnHtml = `
+                    <button id="${btnId}" class="btn" onclick="processFolder('${f.cid}', '${f.name.replace(/'/g, "\\'")}', '${btnId}')">⚡ 处理</button>
+                    <button id="${cleanBtnId}" class="btn btn-clean" onclick="cleanFolder('${f.cid}', '${f.name.replace(/'/g, "\\'")}', '${cleanBtnId}')">📦 收纳</button>`;
+                }
+                html += `
+                <div class="item">
+                    <div class="icon">📁</div>
+                    <div class="name" onclick="loadDirectory('${f.cid}')" style="cursor:pointer; color:#1877f2;">${f.name}</div>
+                    <div style="display:flex;">${btnHtml}</div>
+                </div>`;
+            });
+            data.files.forEach(f => {
+                let icon = f.name.endsWith('.srt') || f.name.endsWith('.ass') ? '📝' : '🎬';
+                html += `<div class="item"><div class="icon">${icon}</div><div class="name" style="color: #65676B;">${f.name}</div></div>`;
+            });
+            if(data.folders.length === 0 && data.files.length === 0){
+                html += `<p style="text-align: center; color: #888; margin-top: 30px;">${isSearch ? '未搜索到相关资源' : '此目录为空'}</p>`;
+            }
+            document.getElementById('fileList').innerHTML = html;
+        }
+
+        function loadDirectory(cid) {
+            window.currentCid = cid; document.getElementById('searchInput').value = ''; document.getElementById('batchGroup').style.display = 'none';
+            document.getElementById('fileList').innerHTML = '<p style="text-align: center; color: #888; margin-top: 40px;"><span class="loader" style="border-top-color: #888;"></span> 加载目录中...</p>';
+            fetch('/api/list?cid=' + cid).then(res => res.json()).then(data => renderList(data, false));
+        }
+
+        function doSearch() {
+            window.currentCid = 'search_' + Date.now(); let keyword = document.getElementById('searchInput').value.trim();
+            if(!keyword) { loadDirectory('0'); return; }
+            document.getElementById('batchGroup').style.display = 'none'; document.getElementById('fileList').innerHTML = '<p style="text-align: center; color: #888; margin-top: 40px;"><span class="loader" style="border-top-color: #888;"></span> 正在全局搜索...</p>';
+            fetch('/api/search?q=' + encodeURIComponent(keyword)).then(res => res.json()).then(data => renderList(data, true));
+        }
+
+        async function runSingleTaskGeneric(cid, safeName, listBtn, apiEndpoint, actionLabel) {
+            if (listBtn) { listBtn.disabled = true; listBtn.innerHTML = '⏳ 执行中'; listBtn.style.background = '#888'; }
+            try {
+                let res = await fetch(`${apiEndpoint}?cid=${cid}&name=${encodeURIComponent(safeName)}`);
+                let data = await res.json();
+                let isSuccess = data.status === 'success';
+                let colorHex = isSuccess ? (actionLabel==='洗盘' ? '#eab308' : '#10a37f') : '#f87171';
+                let btnText = isSuccess ? '✅ 已完成' : '❌ 失败';
+                let logColor = isSuccess ? '#4ade80' : (data.status === 'warning' ? '#fbbf24' : '#f87171');
+                
+                window.taskStatusMap[cid] = { status: data.status, text: btnText, color: colorHex };
+                appendToHistory(safeName, data.msg, isSuccess, actionLabel); 
+                
+                if (listBtn && document.contains(listBtn)) { listBtn.innerHTML = btnText; listBtn.style.background = colorHex; }
+                return { success: isSuccess, msg: data.msg, color: logColor };
+            } catch(err) {
+                window.taskStatusMap[cid] = { status: 'error', text: '❌ 错误', color: '#f87171' };
+                appendToHistory(safeName, "[网络错误] 请求超时或断开。", false, actionLabel);
+                if (listBtn && document.contains(listBtn)) { listBtn.innerHTML = '❌ 错误'; listBtn.style.background = '#f87171'; }
+                return { success: false, msg: "网络错误", color: "#f87171" };
+            }
+        }
+
+        function cleanFolder(cid, name, btnId) {
+            if(!confirm(`⚠️ 提示：确定要进行“极简洗盘与收纳”吗？\\n它将聪明地保留最好的中文字幕，把多余字幕打包塞进【[备份]多余字幕】，最后强制重塑为 01, 02 极简格式！`)) return;
+            clearTimeout(window.hideToastTimeout); document.getElementById('logTitle').innerText = '📦 收纳监控'; document.getElementById('logFilters').style.display = 'none'; 
+            let logBox = document.getElementById('logBox'); let logContent = document.getElementById('logContent'); let btn = document.getElementById(btnId);
+            logBox.style.display = 'flex'; logContent.innerHTML = `<div style="padding: 5px 0;"><span class="loader"></span> <span style="color: #eab308; font-weight:bold;">[正在收纳重塑] ${name}</span></div>`;
+            runSingleTaskGeneric(cid, name, btn, '/api/clean', '洗盘').then(res => {
+                if(document.getElementById('logTitle').innerText === '📦 收纳监控') {
+                    let simpleMsg = res.msg.split("失败漏缺:")[0]; 
+                    logContent.innerHTML = `<div style="padding: 5px 0; color: ${res.color};"><strong style="color:white;">[返回]</strong> ${simpleMsg}</div>`;
+                    if(res.success) { window.hideToastTimeout = setTimeout(() => { hideLogBox(); }, 4000); }
+                }
+                // 成功后隐藏另一个按钮
+                let otherBtn = document.getElementById(btnId.replace('clean-', 'btn-'));
+                if (res.success && otherBtn) otherBtn.style.display = 'none';
+            });
+        }
+
+        function processFolder(cid, name, btnId) {
+            clearTimeout(window.hideToastTimeout); document.getElementById('logTitle').innerText = '⚡ 实时监控'; document.getElementById('logFilters').style.display = 'none'; 
+            let logBox = document.getElementById('logBox'); let logContent = document.getElementById('logContent'); let btn = document.getElementById(btnId);
+            logBox.style.display = 'flex'; logContent.innerHTML = `<div style="padding: 5px 0;"><span class="loader"></span> <span style="color: #61afef; font-weight:bold;">[执行中] ${name}</span></div>`;
+            runSingleTaskGeneric(cid, name, btn, '/api/process', '处理').then(res => {
+                if(document.getElementById('logTitle').innerText === '⚡ 实时监控') {
+                    let simpleMsg = res.msg.split("失败漏缺:")[0]; 
+                    logContent.innerHTML = `<div style="padding: 5px 0; color: ${res.color};"><strong style="color:white;">[返回]</strong> ${simpleMsg}</div>`;
+                    if(res.success) { window.hideToastTimeout = setTimeout(() => { hideLogBox(); }, 3000); }
+                }
+                // 成功后隐藏另一个按钮
+                let otherBtn = document.getElementById(btnId.replace('btn-', 'clean-'));
+                if (res.success && otherBtn) otherBtn.style.display = 'none';
+            });
+        }
+
+        async function batchRunEngine(apiEndpoint, actionLabel, batchBtnId) {
+            if(!confirm(`⚠️ 警告：确定要一键自动${actionLabel}本页所有文件夹吗？\\n它将在后台逐个处理，请确保网络通畅！`)) return;
+            
+            clearTimeout(window.hideToastTimeout); document.getElementById('logTitle').innerText = `🚀 批量${actionLabel}监控`; document.getElementById('logFilters').style.display = 'none'; 
+            let logBox = document.getElementById('logBox'); let logContent = document.getElementById('logContent'); let batchBtn = document.getElementById(batchBtnId);
+            let queueSnapshot = [...window.currentFolders]; let queueLength = queueSnapshot.length; let startSessionCid = window.currentCid; 
+            
+            // 禁用另外一个批量按钮
+            document.getElementById('batchBtn').disabled = true; document.getElementById('batchCleanBtn').disabled = true;
+            
+            logBox.style.display = 'flex'; logContent.innerHTML = `<div style="color: #fbbf24; font-weight: bold; padding-bottom: 8px;">🚀 [后台流水线] 满载发车！共 ${queueLength} 个任务。<br><span style="font-size:12px; color:#9ca3af;">(提示：您可以切走去逛别的目录，后台会自动执行)</span></div>`;
+            batchBtn.style.background = '#888'; batchBtn.innerHTML = `⏳ 正在排队处理中 (${queueLength} 个)...`;
+            
+            for(let i=0; i<queueLength; i++) {
+                let folder = queueSnapshot[i]; 
+                if (window.taskStatusMap[folder.cid] && window.taskStatusMap[folder.cid].status === 'success') continue;
+                let safeName = folder.name; let isCurrentView = (window.currentCid === startSessionCid); 
+                let listBtnId = actionLabel === '洗盘' ? `clean-${i}` : `btn-${i}`;
+                let listBtn = isCurrentView ? document.getElementById(listBtnId) : null;
+                let processId = "task-view-" + folder.cid; 
+                
+                if(logBox.style.display === 'flex' && document.getElementById('logTitle').innerText.includes('批量')) {
+                    logContent.innerHTML += `<div id="${processId}" style="padding: 3px 0; color: #9ca3af;"><span class="loader" style="width: 10px; height: 10px; border-width: 2px;"></span> 队列 [${i+1}/${queueLength}]: ${safeName}</div>`;
+                    logContent.scrollTop = logContent.scrollHeight;
+                }
+                
+                let res = await runSingleTaskGeneric(folder.cid, safeName, listBtn, apiEndpoint, actionLabel);
+                
+                if(res.success && isCurrentView) {
+                    let otherBtnId = actionLabel === '洗盘' ? `btn-${i}` : `clean-${i}`;
+                    let otherBtn = document.getElementById(otherBtnId);
+                    if(otherBtn) otherBtn.style.display = 'none';
+                }
+
+                if(logLine = document.getElementById(processId)) {
+                    let simpleMsg = res.msg.split("失败漏缺:")[0]; logLine.innerHTML = `<span style="color: ${res.color}">↳ [返回] ${simpleMsg}</span>`;
+                }
+            }
+            if(document.getElementById('logTitle').innerText.includes('批量')) {
+                logContent.innerHTML += `<div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; color: #4ade80; font-weight: bold; font-size: 15px;">🎉 所有批量任务执行完毕！</div>`;
+                logContent.scrollTop = logContent.scrollHeight; window.hideToastTimeout = setTimeout(() => { hideLogBox(); }, 4000);
+            }
+            if (window.currentCid === startSessionCid) {
+                let currentBatchBtn = document.getElementById(batchBtnId); 
+                if(currentBatchBtn) { currentBatchBtn.innerHTML = `✅ 批量${actionLabel}已全线完工`; currentBatchBtn.style.background = '#10a37f'; }
+            }
+        }
+
+        function batchProcessAll() { batchRunEngine('/api/process', '处理', 'batchBtn'); }
+        function batchCleanAll() { batchRunEngine('/api/clean', '洗盘', 'batchCleanBtn'); }
+    </script>
+</body>
+</html>
